@@ -1,48 +1,110 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "textbuffer.h"
 #include string.h
 
+//helper function prototypes:
+static tbNode *newtbNode(char *it);
+static void append(TB tb, char *val);
+static TB emptyTb(void);
+static void putTB(FILE *out, TB bfr);
 
-//buffer struct
-typedef struct textbuffer{
+//static helper functions:----------------------------------------------------
+//textbuffer struct------------------------------------
+typedef struct TB{
 	int  nitems;   // count of items in list
 	tbNode *first; // first node in list
 	tbNode *last; 
-}textbuffer;
+}TB;
 
-typedef struct tbNode {
-	char   *value;  // value of this list item (string)
-	struct tbNode *prev;
-	               // pointer previous node in buffer
+//textbuffer Node struct-------------------------------
+typedef struct tbNode { 
+	char   *value;
 	struct tbNode *next;
-	               // pointer to next node in buffer
+	struct tbNode *prev;
 } tbNode;
 
-/* Allocate a new textbuffer whose contents is initialised with the text given
- * in the array.
- */
-TB newTB (char text[]) {
-	//iterate through whole character array, creating lines 
-	//when marked by '\n' new line character.
-	
-	//need to use string library functions.
-	//loop through whole array to create 
-	
-	//empty string:
-	if(text == NULL){
-		
-	}
-	
-	//normal case
-	for(int i = 0; text[i]!= '\0'; i++){
-		if()
-	}
-	
-	return NULL;
+//puts list onto stdout---------------------------------
+static void putTB(FILE *out, TB bfr)
+{
+	assert(out != NULL); assert(bfr != NULL);
+	tbNode *curr;
+	for (curr = bfr->first; curr != NULL; curr = curr->next)
+		fprintf(out,"%s\n",curr->value);
 }
 
-/* Free the memory occupied by the given textbuffer.  It is an error to access
- * the buffer afterwards.
+//creates a new node with info.-------------------------
+static tbNode *newtbNode(char *it){
+	
+	tbNode *new;
+	new = malloc(sizeof(tbNode));
+	assert(new != NULL);
+	new->value = strdup(it);
+	new->prev = new->next = NULL;
+	return new;
+}
+	
+//append to end of tb-----------------------------------
+static void append(TB tb, char *val){
+	
+	assert(tb != NULL);
+	tbNode *new = newtbNode(val);
+	
+	if(tb->first == NULL && tb->last == NULL){
+		//empty tb
+		tb->first = new;
+		tb->last = new;
+		tb->nitems++;
+	} else {
+		//regular case
+		new->prev = tb->last;
+		tb->last->next = new;
+		tb->last = new;.
+		tb->nitems++;
+	}
+}
+
+//create empty TB---------------------------------------
+static TB emptyTB(void){
+
+	struct TB *tb;
+
+	tb = malloc(sizeof (struct TB));
+	assert (tb != NULL);
+	tb->nitems = 0;
+	tb->first = NULL;
+	tb->last = NULL;
+	return tb;
+}
+
+/* Allocate a new textbuffer. contents initialised
+ * in text array.
+ */
+ //actual function lmaooo-----------------------------------------------------
+TB newTB (char text[]) {
+
+	TB mytb = emptyTB();
+	if(text == NULL) return mytb;
+	
+	//normal case
+	//Will have issues with strtok!!! just FYI Carlos. debug
+	const char delim[2] = "\n";
+	char *token;
+	token = strtok(text, delim);
+	append(mytb, token);
+	
+	//loop to continuously append shiz.
+	while(token != NULL){
+		append(mytb, token);
+		token = strtok(NULL, text);
+	}
+	static void putTB(FILE *out, TB bfr)
+	putTB(stdout, mytb);//for testing.
+	return tb;
+}
+
+/* Free the memory occupied by the given textbuffer.
+ * It is an error to access the buffer afterwards.
  */
 void releaseTB (TB tb) {
 
@@ -58,7 +120,8 @@ char *dumpTB (TB tb, int showLineNumbers){
 /* Return the number of lines of the given textbuffer.
  */
 int linesTB (TB tb){
-	return -1;
+	assert(tb != NULL);
+	return tb->nitems;
 }
 
 /* Add a given prefix to all lines between pos1 and pos2
